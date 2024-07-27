@@ -1,12 +1,12 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-enum Status {
+export enum Status {
     Option1 = "to do",
     Option2 = "In progress",
     Option3 = "under review",
     Option4 = "finished"
 }
-enum Priority {
+export enum Priority {
     Option1 = "urgent",
     Option2 = "medium",
     Option3 = "low"

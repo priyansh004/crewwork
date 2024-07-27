@@ -5,8 +5,15 @@ import cal from '@asset/menubar/cal.png'
 import filter from '@asset/menubar/filter.png'
 import search from '@asset/menubar/search.png'
 import share from '@asset/menubar/share.png'
+import Dialog from './Dialog'
+import { useState } from 'react'
 
 const Menubar: React.FC = () => {
+
+    const [showTaskAdd, setShowTaskAdd] = useState(false);
+
+    const openDialog = () => setShowTaskAdd(true);
+    const closeDialog = () => setShowTaskAdd(false);
 
     return (
         <div className="flex flex-row justify-between">
@@ -75,7 +82,7 @@ const Menubar: React.FC = () => {
 
 
                 </div>
-                <div>
+                <button onClick={openDialog} >
                     <div className='flex flex-row gap-2 rounded-lg border p-2 justify-center items-center'
                         style={{
 
@@ -91,8 +98,11 @@ const Menubar: React.FC = () => {
                             className='h-6 w-6'
                         />
                     </div>
-                </div>
+                </button>
             </div>
+            <Dialog isOpen={showTaskAdd} onClose={closeDialog}>
+                          <></>
+            </Dialog>
         </div>
     )
 }

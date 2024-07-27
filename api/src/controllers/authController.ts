@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createError } from '../utils/errorhandler';
 
+
+
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     const { fullname, email, password,  } = req.body;
 
@@ -64,3 +66,14 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         next(error);
     }
 };
+
+export const signout = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        res
+          .clearCookie("access_token")
+          .status(200)
+          .json("User has been signed out");
+      } catch (error) {
+        next(error);
+      }
+}

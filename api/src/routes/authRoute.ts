@@ -15,5 +15,5 @@ router.use(limiter);
 
 router.post("/register", validateRegister, authController.register);
 router.post("/login", validateLogin, authController.login);
-
+router.post("/signout",authController.signout )
 export default router;

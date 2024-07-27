@@ -5,53 +5,53 @@ import cors from 'cors';
 import { connectToDatabase } from './utils/database';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import {errorHandler} from './utils/errorhandler';
+import { errorHandler } from './utils/errorhandler';
 import authRoute from './routes/authRoute';
+import taskRoute from './routes/taskRoute';
+import next from 'next';
+import { Request, Response } from 'express';
+import { IncomingMessage, ServerResponse } from 'http';
 
 dotenv.config();
 
-const app = express();
-const port = process.env.PORT;
+const isDev = process.env.NODE_ENV !== 'production';
+const nextApp = next({ dev: isDev });
+const handle = nextApp.getRequestHandler();
 
-app.use(express.json());
-app.use(cookieParser());
+const server = express();
 
-const corsoption = {
-    origin: 'http://localhost:3000',
+server.use(express.json());
+server.use(cookieParser());
+
+// CORS configuration
+const corsOptions = {
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
     credentials: true,
     exposedHeaders: ['authorization'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 };
 
-app.use(cors(corsoption));
+server.use(cors(corsOptions));
 
-//database connection
+// Database connection
 connectToDatabase();
 
-// Use morgan middleware
-app.use(morgan('common'));
-app.use(helmet());  
-app.use(errorHandler);
+// Middleware for logging, security, and error handling
+server.use(morgan('common'));
+server.use(helmet());  
+server.use(errorHandler);
 
-app.use("/api/auth", authRoute);
+// API routes
+server.use('/api/auth', authRoute);
+server.use('/api/task', taskRoute);
 
-app.use(errorHandler);
-// // Function to insert users into the database
-// const seedUsers = async () => {
-//     try {
-//         await connectToDatabase();
-//         await UserModel.insertMany(users);
-//         console.log('Test users inserted successfully');
-//         mongoose.connection.close();
-//     } catch (error) {
-//         console.error('Error inserting test users:', error);
-//         mongoose.connection.close();
-//     }
-// };
+// Handle Next.js requests
+server.all('*', (req: Request, res: Response) => {
+    return handle(req as any, res as any); // Casting to `any` to avoid type errors
+});
 
-// // Execute the function
-// seedUsers();
-
-app.listen(port, () => {
+// Start the server
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

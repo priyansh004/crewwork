@@ -9,11 +9,8 @@ const Home: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (currentUser) {
       router.push('/taskboard');
-    } else {
-      router.push('/login');
-    }
+    
   }, [currentUser, router]);
 
   // Render nothing; redirection happens in useEffect

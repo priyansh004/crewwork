@@ -14,7 +14,11 @@ import board from '@asset/board.png'
 import plus from '@asset/plus.png'
 import downarrow from '@asset/downarrow.png'
 import { useAppSelector } from '@/redux/hooks'
-
+import { signOut } from '@/redux/user/userSlice'
+import axios from 'axios'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '@/redux/store'
+import Dialog from './Dialog'
 type Item = {
     src: StaticImageData; // Ensure this type matches what you're using
     text: string;
@@ -31,23 +35,43 @@ const items: Item[] = [
 const Sidebar: React.FC = () => {
 
     const { currentUser } = useAppSelector((state) => state.user);
-
+    const navigate = useRouter();
+    const dispatch = useDispatch<AppDispatch>();
 
 
     const [isAnimating, setIsAnimating] = useState(false);
 
     const router = useRouter();
 
-    const handleClick = () => {
-        setIsAnimating(true);
 
-        // Wait for the animation to complete before navigating
-        setTimeout(() => {
-            // router.push('/login');
-        }, 300); // Duration of the animation
-    };
+    const handleClick = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_BACKEND_URL}/api/auth/signout`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    withCredentials: true
+                }
+            );
+
+            // If the request is successful, the response data will be the user object
+            dispatch(signOut());
+            navigate.push("/login");
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    const [showTaskAdd, setShowTaskAdd] = useState(false);
+
+    const openDialog = () => setShowTaskAdd(true);
+    const closeDialog = () => setShowTaskAdd(false);
+
     return (
-        <div className="f-full h-full flex flex-col justify-between pt-[24px] pr-[16px] pb-[32px] pl-[16px] bg-[#FFFFFF]">
+        <div className="overflow-hidden f-full h-full flex flex-col justify-between pt-[24px] pr-[16px] pb-[32px] pl-[16px] bg-[#FFFFFF]">
             <div className="flex flex-col gap-4 ">
                 <div className="flex flex-col gap-2">
                     <div className="flex flex-row  items-center gap-2">
@@ -86,12 +110,12 @@ const Sidebar: React.FC = () => {
 
                             />
                         </div>
-                        <div
+                        <button
                             className={`h-10 w-[69px] bg-[#F4F4F4] rounded p-2 gap-[14px] ${isAnimating ? 'dissolve' : ''}`}
                             onClick={handleClick}
                         >
                             <p className='font-normal text-4 leading-[19.36px]'>Logout</p>
-                        </div>
+                        </button>
                     </div>
                 </div>
                 <div className='flex flex-col justify-between gap-4'>
@@ -122,7 +146,10 @@ const Sidebar: React.FC = () => {
                         ))}
 
                     </div>
-                    <div className='flex flex-row gap-2 rounded-lg border p-2 justify-center items-center'
+                    <button 
+                                            onClick={openDialog}
+
+                    className='flex flex-row gap-2 rounded-lg border p-2 justify-center items-center'
                         style={{
                            
                             background: 'linear-gradient(180deg, #4C38C2 0%, #2F2188 100%)',
@@ -136,7 +163,7 @@ const Sidebar: React.FC = () => {
                             height={24}
                             className='h-6 w-6'
                         />
-                    </div>
+                    </button>
                 </div>
             </div>
             <div className='flex flex-row gap-2 rounded-lg p-2 bg-[#F3F3F3]'>
@@ -150,6 +177,9 @@ const Sidebar: React.FC = () => {
                     <p className='text-[14px] leading-[16.94px] font-normal  text-[#666666] h-[17px]'>Get the full experience</p>
                 </div>
             </div>
+            <Dialog isOpen={showTaskAdd} onClose={closeDialog}>
+                          <></>
+            </Dialog>
         </div>
 
     )
