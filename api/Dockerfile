@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as the base image
-FROM node:20
+FROM node:18-alpine
 
 # Install pnpm globally
 RUN npm install -g pnpm
@@ -17,7 +17,7 @@ RUN pnpm install
 COPY . .
 
 # Expose the port that the app will run on
-EXPOSE 3000
+EXPOSE 8000
 
 # Start the application
 CMD [ "pnpm", "run", "dev" ]
