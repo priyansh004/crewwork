@@ -1,6 +1,10 @@
 # TaskMaster: Efficient Task Management Solution
 
-TaskMaster is a full-stack task management application 
+crewwork is a full-stack task management application 
+
+test credintials:
+email: testuser@gamil.com
+pass: Test@2024
 
 ## 📌 Features
 
