@@ -47,11 +47,6 @@ server.use('/api/auth', authRoute);
 server.use('/api/task', taskRoute);
 server.use('/api/user',getUserData)
 
-// Handle Next.js requests
-server.all('*', (req: Request, res: Response) => {
-    return handle(req as any, res as any); // Casting to `any` to avoid type errors
-});
-
 // Start the server
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
