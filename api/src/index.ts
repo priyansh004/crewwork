@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -24,6 +24,7 @@ const server = express();
 server.use(express.json());
 server.use(cookieParser());
 
+
 // CORS configuration
 const corsOptions = {
     origin: process.env.CLIENT_URL || 'http://localhost:3000',
@@ -36,6 +37,13 @@ server.use(cors(corsOptions));
 
 // Database connection
 connectToDatabase();
+
+// Error handling middleware
+server.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
+    res.status(statusCode).json({ message });
+});
 
 // Middleware for logging, security, and error handling
 server.use(morgan('common'));

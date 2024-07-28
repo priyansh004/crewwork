@@ -47,7 +47,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         }
 
         const token = jwt.sign(
-            { id: validUser._id},
+            { id: validUser._id },
             process.env.JWT_SECRET!,
             { expiresIn: '1h' }
         );
@@ -57,10 +57,10 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         res.cookie("access_token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 3600000 // 1 hour
         });
-
+        
         res.status(200).json(userWithoutPassword);
     } catch (error) {
         next(error);

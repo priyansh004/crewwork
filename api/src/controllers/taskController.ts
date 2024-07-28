@@ -59,6 +59,7 @@ export const getAllTasks = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
+
 export const getTaskById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.cookies.access_token;
