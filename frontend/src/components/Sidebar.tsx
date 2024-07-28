@@ -19,6 +19,7 @@ import axios from 'axios'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '@/redux/store'
 import Dialog from './Dialog'
+import useAuth from '@/hooks/useAuth'
 type Item = {
     src: StaticImageData; // Ensure this type matches what you're using
     text: string;
@@ -33,6 +34,7 @@ const items: Item[] = [
 ];
 
 const Sidebar: React.FC = () => {
+    useAuth(); // Check if user is authenticated
 
     const { currentUser } = useAppSelector((state) => state.user);
     const navigate = useRouter();

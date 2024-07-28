@@ -47,7 +47,7 @@ const Login: React.FC = () => {
 
             // If the request is successful, the response data will be the user object
             dispatch(signInSuccess(response.data));
-            navigate.push("/");
+            navigate.push("/taskboard");
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 // Axios error

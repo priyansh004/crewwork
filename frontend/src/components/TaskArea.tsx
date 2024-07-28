@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback } from "react";
 import Image from "next/image";
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
 import axios from "axios";
@@ -17,6 +17,8 @@ import { current } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import Dialog from "./Dialog";
+import useAuth from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 export enum Status {
     Option1 = "to do",
     Option2 = "In progress",
@@ -59,7 +61,12 @@ interface BoardState {
 }
 
 const TaskArea: React.FC = () => {
+    useAuth(); // Check if user is authenticated
+    const router= useRouter();
     const { currentUser } = useSelector((state: RootState) => state.user);
+  
+    const [showTaskAdd, setShowTaskAdd] = useState(false);
+    const [selectedStatus, setSelectedStatus] = useState<Status | undefined>(undefined);
 
     const [boardState, setBoardState] = useState<BoardState>({
         tasks: {},
@@ -69,26 +76,24 @@ const TaskArea: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BACKEND_URL}/api/task/`, {
-                    withCredentials: true,
-                });
-                const tasks = response.data;
-                initializeBoardState(tasks);
-                setLoading(false);
-            } catch (error: any) {
+    const fetchTasks = useCallback(async () => {
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BACKEND_URL}/api/task/`, {
+                withCredentials: true,
+            });
+            const tasks = response.data;
+            initializeBoardState(tasks);
+            setLoading(false);
+        } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                // Redirect to login page if status is 401 in the error response
+                router.push('/login');
+            } else {
                 setError(error.message || "An error occurred");
-                setLoading(false);
             }
-        };
-
-        fetchTasks();
-    }, []);
-
-    const [showTaskAdd, setShowTaskAdd] = useState(false);
-    const [selectedStatus, setSelectedStatus] = useState<Status | undefined>(undefined);
+            setLoading(false);
+        }
+    }, [router]);
 
     const openDialog = (status: Status) => {
         setSelectedStatus(status);
@@ -99,6 +104,19 @@ const TaskArea: React.FC = () => {
         setSelectedStatus(undefined);
     };
 
+    
+    useEffect(() => {
+        fetchTasks();
+    }, [fetchTasks]); // Dependency array with fetchTasks ensures it runs only once initially
+
+    // Effect to re-run fetchTasks when closeDialog is called
+    useEffect(() => {
+        if (!showTaskAdd) {
+            fetchTasks(); // Re-fetch tasks when dialog is closed
+        }
+    }, [showTaskAdd, fetchTasks,closeDialog]); //
+  
+   
 
     const initializeBoardState = (tasks: TaskFormData[]) => {
         const newState: BoardState = {
@@ -247,7 +265,7 @@ const TaskArea: React.FC = () => {
                 {/* Title div */}
                 <div className="flex flex-row items-center w-full">
                     <p className="font-semibold text-5xl leading-[57.6px] flex-grow">
-                        Good morning, {currentUser.fullname}!
+                        Good morning, {currentUser.fullname.split(' ')[0]}!
                     </p>
                     <div className="flex flex-row items-end ml-4">
                         <p className="font-normal text-[16px] text-[#080808] leading-[19.36px] mr-2">
@@ -345,12 +363,7 @@ const TaskArea: React.FC = () => {
                                             </Draggable>
                                         ))}
                                         {provided.placeholder}
-                                        <Dialog isOpen={showTaskAdd} onClose={closeDialog}
-                                        initialStatus={selectedStatus}
 
-                                        >
-                                            <></>
-                                        </Dialog>
                                         <button onClick={() => openDialog(column.title as Status)}>
                                             <Balckaddcard />
 
@@ -362,7 +375,11 @@ const TaskArea: React.FC = () => {
                     })}
                 </div>
             </DragDropContext>
-
+            <Dialog isOpen={showTaskAdd} onClose={closeDialog}
+                initialStatus={selectedStatus}
+            >
+                <></>
+            </Dialog>
         </div>
     );
 };

@@ -11,6 +11,7 @@ import taskRoute from './routes/taskRoute';
 import next from 'next';
 import { Request, Response } from 'express';
 import { IncomingMessage, ServerResponse } from 'http';
+import { getUserData } from './controllers/authController';
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ server.use(errorHandler);
 // API routes
 server.use('/api/auth', authRoute);
 server.use('/api/task', taskRoute);
+server.use('/api/user',getUserData)
 
 // Handle Next.js requests
 server.all('*', (req: Request, res: Response) => {

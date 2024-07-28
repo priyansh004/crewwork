@@ -18,6 +18,7 @@ import dead from "@asset/taskadd/dead.png";
 import pen from "@asset/taskadd/pen.png";
 import plus from "@asset/taskadd/add.png";
 import Link from 'next/link';
+import useAuth from '@/hooks/useAuth';
 
 // Define enums
  enum Status {
@@ -46,6 +47,8 @@ interface TaskFormData {
 
 
 const Page: React.FC = () => {
+    useAuth(); // Check if user is authenticated
+
     const { currentUser } = useAppSelector((state) => state.user);
     const [task, setTask] = useState<TaskFormData>({
         _id: '',

@@ -1,7 +1,9 @@
+import useAuth from '@/hooks/useAuth';
 import plus from '@asset/plus2.png'
 import Image from 'next/image'
 
 const Balckaddcard:React.FC =()=>{
+    useAuth(); // Check if user is authenticated
 
     return(
         <div className="flex flex-row  rounded-lg p-2 justify-between items-center "

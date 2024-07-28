@@ -32,8 +32,8 @@ export const createTask = async (req: Request, res: Response, next: NextFunction
             description,
             status,
             userId: decodedToken.id,
-            priority,
-            deadline
+            priority: priority || undefined, // Set to undefined if not provided
+            deadline: deadline ? new Date(deadline) : undefined // Convert to Date object if provided
         });
 
         const task = await newTask.save();

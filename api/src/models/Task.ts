@@ -17,7 +17,7 @@ interface IPost extends Document {
     description?: string;
     status: Status;
     userId: mongoose.Types.ObjectId; // Reference to the User model
-    priority: Priority;
+    priority?: Priority;
     deadline?: Date;
 }
 

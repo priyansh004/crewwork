@@ -7,6 +7,7 @@ import trash from '@asset/trash.svg'
 import edit from "@asset/edit.svg"
 import axios from 'axios';
 import Link from 'next/link';
+import useAuth from '@/hooks/useAuth';
 
 interface TaskCardProps {
     task: {
@@ -14,7 +15,7 @@ interface TaskCardProps {
         title: string;
         description?: string;
         status: Status;
-        priority: Priority;
+        priority?: Priority;
         deadline?: string;
         createdAt?: string;
     };
@@ -22,6 +23,8 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, index }) => {
+    useAuth(); // Check if user is authenticated
+
     const deleteTask = async () => {
         try {
             const response = await axios.delete(
@@ -92,11 +95,17 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index }) => {
                         {task.description}
                     </p>
                 </div>
-                <div className={`inline-flex items-center rounded-lg px-[6px] py-2 ${getPriorityColor(task.priority)} w-[55px] h-[27px]`}>
-                    <p className="font-normal self-center text-justify text-[12px] text-[#FFFFFF] leading-[14.52px]">
-                        {task.priority}
-                    </p>
-                </div>
+                {
+                    task.priority && (
+                        <div className={`flex items-center justify-center rounded-lg px-[6px] py-2 ${getPriorityColor(task.priority)} w-[55px] h-[27px]`}>
+                            <p className="font-normal text-center text-[12px] text-[#FFFFFF] leading-[14.52px]">
+                                {task.priority}
+                            </p>
+                        </div>
+
+
+                    )
+                }
                 {task.deadline && (
                     <div className="flex flex-row gap-2 items-center">
                         <Image
@@ -118,13 +127,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, index }) => {
                 </p>
                 <div className='flex flex-row gap-2 mr-3'>
                     <Link href={`/edit/${task._id}`}>
-                            <Image
-                                src={edit}
-                                alt="clock"
-                                width={24}
-                                height={24}
-                                className="h-4 w-4"
-                            />
+                        <Image
+                            src={edit}
+                            alt="clock"
+                            width={24}
+                            height={24}
+                            className="h-4 w-4"
+                        />
                     </Link>
                     <button onClick={deleteTask}>
                         <Image

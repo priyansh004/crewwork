@@ -7,8 +7,11 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import axios from "axios";
+import useAuth from "@/hooks/useAuth";
 
 const TaskBoard: React.FC = () => {
+    useAuth(); // Check if user is authenticated
+
     const [showtaskadd, setshowtaskadd] = useState(false);
     const { currentUser } = useSelector((state: RootState) => state.user);
   

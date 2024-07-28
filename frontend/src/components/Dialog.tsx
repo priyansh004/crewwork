@@ -17,6 +17,7 @@ import pri from "@asset/taskadd/pri.png";
 import dead from "@asset/taskadd/dead.png";
 import pen from "@asset/taskadd/pen.png";
 import plus from "@asset/taskadd/add.png";
+import useAuth from '@/hooks/useAuth';
 
 // Define enums
 export enum Status {
@@ -36,8 +37,8 @@ export enum Priority {
 interface TaskFormData {
     title: string;
     description?: string;
-    status: Status;
-    priority: Priority;
+    status: Status | "";
+    priority: Priority | "";
     deadline?: string;
 }
 
@@ -49,23 +50,18 @@ interface DialogProps {
     initialStatus?: Status; // Make initialStatus required
 }
 
-const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, initialStatus = Status.Option1  }) => {
+const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, initialStatus }) => {
+    useAuth(); // Check if user is authenticated
+
     const router = useRouter();
     const [formData, setFormData] = useState<TaskFormData>({
         title: "",
         description: "",
-        status: initialStatus ,
-        priority: Priority.Option2,
+        status: initialStatus || "", // Set initialStatus if provided, otherwise empty string
+        priority: "",
         deadline: "",
     });
 
-    // Use useEffect to update formData when initialStatus changes
-    useEffect(() => {
-        setFormData(prevData => ({
-            ...prevData,
-            status: initialStatus
-        }));
-    }, [initialStatus]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -77,11 +73,13 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, initialStatu
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const dataToSend = {
+            ...formData,
+            priority: formData.priority.trim() === "" ? "" : formData.priority,
+            deadline: formData.deadline ? new Date(formData.deadline) : undefined, // Convert deadline to Date object if exists
+        };
         try {
-            const dataToSend = {
-                ...formData,
-                deadline: formData.deadline ? new Date(formData.deadline) : undefined,
-            };
+
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BACKEND_URL}/api/task/`, dataToSend, {
                 withCredentials: true,
             });
@@ -171,21 +169,30 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children, initialStatu
                                                 required
                                                 className="text-[16px] font-normal leading-[24px] text-[#C1BDBD] focus:outline-none"
                                             >
-                                                {Object.values(Status).map((statusOption) => (
-                                                    <option key={statusOption} value={statusOption}>{statusOption}</option>
+                                                {!formData.status && (
+                                                    <option value="" disabled>Select a status</option>
+                                                )}                                   
+                                                             {Object.values(Status).map((statusOption) => (
+                                                    <option key={statusOption} value={statusOption}>
+                                                        {statusOption}
+                                                    </option>
                                                 ))}
                                             </select>
+
                                             <select
                                                 name="priority"
                                                 value={formData.priority}
                                                 onChange={handleInputChange}
-                                                required
                                                 className="text-[16px] font-normal leading-[24px] text-[#C1BDBD] focus:outline-none"
                                             >
+                                                <option value="" disabled>Select a priority</option> {/* Placeholder option */}
                                                 {Object.values(Priority).map((priorityOption) => (
-                                                    <option key={priorityOption} value={priorityOption}>{priorityOption}</option>
+                                                    <option key={priorityOption} value={priorityOption}>
+                                                        {priorityOption}
+                                                    </option>
                                                 ))}
                                             </select>
+
                                             <input
                                                 type="date"
                                                 name="deadline"

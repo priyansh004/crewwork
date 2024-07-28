@@ -7,8 +7,10 @@ import search from '@asset/menubar/search.png'
 import share from '@asset/menubar/share.png'
 import Dialog from './Dialog'
 import { useState } from 'react'
+import useAuth from '@/hooks/useAuth'
 
 const Menubar: React.FC = () => {
+    useAuth(); // Check if user is authenticated
 
     const [showTaskAdd, setShowTaskAdd] = useState(false);
 

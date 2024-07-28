@@ -77,3 +77,23 @@ export const signout = async (req: Request, res: Response, next: NextFunction) =
         next(error);
       }
 }
+
+export const getUserData = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'No token provided' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+        const user = await UserModel.findById(decoded.id).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user);
+    } catch (error) {
+        next(error);
+    }
+};
